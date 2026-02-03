@@ -1,0 +1,74 @@
+import random
+
+environment = {
+    "A": random.choice(["Dirty", "Clean"]),
+    "B": random.choice(["Dirty", "Clean"])
+}
+
+visited = {"A": False, "B": False}
+current_location = "A"
+
+performance_table = []
+percept_action_table = []
+
+def calculate_percentages(env, visited):
+    total = len(env)
+    cleaned = sum(1 for loc in env if env[loc] == "Clean" and visited[loc])
+    not_cleaned = sum(1 for loc in env if env[loc] == "Dirty" and visited[loc])
+    pending = sum(1 for loc in visited if not visited[loc])
+
+    return {
+        "Cleaned": (cleaned / total) * 100,
+        "Not Cleaned": (not_cleaned / total) * 100,
+        "Pending": (pending / total) * 100
+    }
+
+for _ in range(2):
+
+    percept = f"Location {current_location}, {environment[current_location]}"
+    visited[current_location] = True
+
+    if environment[current_location] == "Dirty":
+        action = "Suck"
+        environment[current_location] = "Clean"
+        status = "Cleaned"
+    else:
+        action = "NoOp"
+        status = "Already Clean"
+
+    percept_action_table.append([percept, action, status])
+
+    # 🔹 UPDATE PERFORMANCE TABLE HERE
+    percentages = calculate_percentages(environment, visited)
+    performance_table.append([
+        f"A:{environment['A']} B:{environment['B']}",
+        f"Cleaned={percentages['Cleaned']:.0f}% "
+        f"NotCleaned={percentages['Not Cleaned']:.0f}% "
+        f"Pending={percentages['Pending']:.0f}%"
+    ])
+
+    previous_location = current_location
+    if current_location == "A":
+        current_location = "B"
+        move = "Right"
+    else:
+        current_location = "A"
+        move = "Left"
+
+    percept_action_table.append([f"Move from {previous_location}", move, "Moved"])
+
+
+print("\nINITIAL RANDOM ENVIRONMENT")
+for loc, state in environment.items():
+    print(f"Location {loc}: {state}")
+
+print("\nTABLE 1: PERFORMANCE STATUS TABLE")
+print("Performance\t\tStatus")
+for row in performance_table:
+    print(f"{row[0]}\t{row[1]}")
+
+print("\nTABLE 2: PERCEPT–ACTION TABLE")
+print("Percept\t\t\tAction\tStatus")
+for row in percept_action_table:
+    print(f"{row[0]}\t{row[1]}\t{row[2]}")
+
