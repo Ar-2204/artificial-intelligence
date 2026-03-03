@@ -1,0 +1,32 @@
+from collections import deque
+
+def solve():
+    start = ('door', 'onfloor', 'atwindow', 'hasnot')
+    visited = set()
+    queue = deque([(start, [])])
+    while queue:
+        state, path = queue.popleft()
+        if state in visited:
+            continue
+        visited.add(state)
+        m_pos, m_state, box_pos, banana = state
+        if banana == 'has':
+            for step in path:
+                print(step)
+            return
+        if m_state == 'onfloor':
+            for pos in ['door', 'window', 'middle']:
+                if pos != m_pos:
+                    queue.append(((pos, 'onfloor', box_pos, banana), path + [f"go to {pos}"]))
+        if m_pos == box_pos and m_state == 'onfloor':
+            for pos in ['door', 'window', 'middle']:
+                if pos != box_pos:
+                    queue.append(((pos, 'onfloor', pos, banana), path + [f"push box to {pos}"]))
+            queue.append(((m_pos, 'onbox', box_pos, banana), path + ["climb box"]))
+        if m_state == 'onbox':
+            if m_pos == 'middle':
+                queue.append(((m_pos, m_state, box_pos, 'has'), path + ["grab banana"]))
+            queue.append(((m_pos, 'onfloor', box_pos, banana), path + ["climb down"]))
+
+if __name__ == "__main__":
+    solve()
